@@ -1,16 +1,27 @@
-# React + Vite
+# Student Marketplace frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+React single-page frontend built with Vite. Marketplace and authentication requests use the `/api` path.
 
-Currently, two official plugins are available:
+## Run locally
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+1. Start the backend API. By default, the frontend expects it at `http://localhost:8080`.
+2. Install frontend dependencies with `npm install`.
+3. Start the frontend with `npm run dev`.
 
-## React Compiler
+Vite proxies `/api` requests to the backend during development, avoiding browser CORS issues. To use a different backend address, set `BACKEND_URL` in a local `.env` file (see `.env.example`) and restart Vite.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+For deployments, set `VITE_API_BASE_URL` to the API's public base URL, including `/api` (for example, `https://example.com/api`). If unset, requests use `/api` on the same origin as the frontend, which requires the production web server to proxy that path to the backend.
 
-## Expanding the Oxlint configuration
+## Moderation and student feedback API
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+The backend must authorize these operations by the authenticated user's role; frontend role checks are only for presentation.
+
+- `DELETE /admin/users/{userId}` removes a user. The admin user list refreshes locally after a successful response.
+- `GET /items/{itemId}/reviews` returns reviews with `id`, `rating`, `comment`, and optional `reviewer.fullName`. `POST /items/{itemId}/reviews` accepts `{ "rating": 1, "comment": "..." }` and returns the created review.
+- `POST /reports` accepts `{ "targetType": "ITEM" | "SELLER", "targetId": "...", "reason": "..." }` for student reports about suspicious products or sellers.
+- `GET /admin/reviews` and `GET /admin/reports` return arrays of submitted reviews and reports for the administrator's Reviews & reports page. Each endpoint can also return an object containing a `reviews` or `reports` array.
+
+## Checks
+
+- `npm run lint`
+- `npm run build`

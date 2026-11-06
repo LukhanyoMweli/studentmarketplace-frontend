@@ -1,19 +1,26 @@
-const BASE_URL = "http://localhost:8080/api";
+import { API_BASE_URL } from "../api";
 
-export async function loginUser(email, password, role) {
-    const res = await fetch(`${BASE_URL}/login`, {
+async function post(path, body) {
+    const res = await fetch(`${API_BASE_URL}${path}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, role }),
+        body: JSON.stringify(body),
     });
-    return res.json();
+
+    const data = await res.json().catch(() => null);
+
+    if (data && typeof data.success === "boolean") return data;
+
+    return {
+        success: false,
+        message: data?.message || `Server error (${res.status}). Check the backend console.`,
+    };
 }
 
-export async function registerUser(fullName, email, password, phoneNumber, role) {
-    const res = await fetch(`${BASE_URL}/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fullName, email, password, phoneNumber, role }),
-    });
-    return res.json();
+export function loginUser(email, password, role) {
+    return post("/login", { email, password, role });
+}
+
+export function registerUser(fullName, email, password, phoneNumber, role) {
+    return post("/register", { fullName, email, password, phoneNumber, role });
 }
